@@ -1,0 +1,15 @@
+<ion-footer>
+  <ion-toolbar>
+    <ion-segment scrollable mode="md">
+      <ion-segment-button
+        *ngFor="let item of menuItems"
+        (click)="handleMenuItemClick(item)"
+        [routerLink]="item.action !== 'logout' ? item.path : null"
+        routerLinkActive="active-menu-item"
+      >
+        <ion-icon [name]="item.icon" size="small"></ion-icon>
+        <ion-label>{{ item.label }}</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-footer>

@@ -1,4 +1,4 @@
-// Aplicando los colores solicitados
+// Aplicando los colores solicitados (puedes copiar y adaptar de dashboard.page.scss)
 ion-content {
   --background: #e6f7f4;
 }
@@ -8,13 +8,13 @@ ion-toolbar {
   --color: white;
 }
 
-.dashboard-container {
+.gastos-container {
   display: flex;
   flex-direction: column;
   height: 100%;
 }
 
-.dashboard-content {
+.gastos-content {
   padding: 16px;
 }
 
@@ -34,22 +34,4 @@ ion-card-title {
   font-weight: 600;
 }
 
-ion-button {
-  --background: #00a383;
-  --background-activated: #007a63;
-  --background-hover: #009678;
-}
-
-ion-item {
-  --padding-start: 0;
-  --inner-padding-end: 0;
-  --background: transparent;
-}
-
-// Estilos para los inputs
-ion-input {
-  --padding-start: 8px;
-  --background: rgba(255, 255, 255, 0.8);
-  border-radius: 8px;
-  margin-top: 4px;
-}
+// ... otros estilos que necesites para la página de gastos

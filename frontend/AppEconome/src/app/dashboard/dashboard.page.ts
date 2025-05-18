@@ -1,20 +1,102 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular/standalone';
 
+
+import {IonicModule} from '@ionic/angular';
+
+import { EntradaService } from '../service/entrada.service';
+import { SimpleMenuComponent } from '../components/simple-menu/simple-menu.component';
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.page.html',
   styleUrls: ['./dashboard.page.scss'],
   standalone: true,
-  imports: [IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule]
+  imports: [IonicModule, CommonModule, FormsModule, SimpleMenuComponent]
 })
 export class DashboardPage implements OnInit {
+    entrada = {
+    monto: null,
+    descripcion: ''
+  };
 
-  constructor() { }
+  usuarioId: number | null = null;
+  entradaExistente: any = null;
+  totalGastos: number = 0;
+  saldo: number = 0;
+
+  constructor(private entradaService: EntradaService) { }
 
   ngOnInit() {
+    this.cargarDatosIniciales();
   }
 
+  cargarDatosIniciales() {
+    console.log('Cargando datos iniciales del dashboard...');
+    const usuarioData = localStorage.getItem('user');
+
+    if (usuarioData) {
+      try {
+        const usuarioGuardado = JSON.parse(usuarioData);
+        this.usuarioId = usuarioGuardado?.id;
+        console.log('ID del usuario obtenido:', this.usuarioId);
+        if (this.usuarioId) {
+          this.cargarEntradaExistente();
+        }
+      } catch (error) {
+        console.error('Error al parsear usuario:', error);
+      }
+    } else {
+      console.warn('No se encontró usuario en localStorage');
+    }
+  }
+
+  cargarEntradaExistente() {
+    this.entradaService.obtenerEntradaPorUsuario(this.usuarioId!).subscribe({
+      next: (entrada) => {
+        console.log('Entrada existente encontrada:', entrada);
+        this.entradaExistente = entrada;
+        this.saldo = Number(this.entradaExistente.monto); // Inicializar saldo con el monto de la entrada
+      },
+      error: (error) => {
+        console.log('No se encontró entrada para este usuario.', error);
+        this.entradaExistente = null;
+        this.saldo = 0; // Inicializar saldo en 0
+      }
+    });
+  }
+
+  agregarEntrada() {
+    if (this.entrada.monto === null || this.entrada.monto <= 0) {
+      console.error('El monto debe ser mayor que cero');
+      return;
+    }
+
+    if (this.usuarioId === null) {
+      console.error('No se puede agregar la entrada porque el ID del usuario no está disponible.');
+      return;
+    }
+
+    this.entradaService.agregarEntrada(
+      Number(this.entrada.monto),
+      this.entrada.descripcion,
+      this.usuarioId
+    ).subscribe({
+      next: (response) => {
+        console.log('Entrada agregada con éxito', response);
+        this.cargarEntradaExistente(); // Recargar la entrada después de agregarla
+        this.entrada.monto = null;
+        this.entrada.descripcion = '';
+      },
+      error: (error) => {
+        console.error('Error al agregar entrada:', error);
+      }
+    });
+  }
+
+  actualizarSaldo(gasto: number) {
+    this.saldo -= gasto;
+    this.totalGastos += gasto;
+  }
+  
 }
