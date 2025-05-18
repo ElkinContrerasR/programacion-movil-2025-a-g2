@@ -1,0 +1,34 @@
+<ion-menu contentId="main-content" menuId="main-menu" side="start">
+  <ion-header>
+    <ion-toolbar style="--background: #00a383; --color: #ffffff;">
+      <ion-title>Menú</ion-title>
+    </ion-toolbar>
+  </ion-header>
+  <ion-content style="--background: #e6f7f4;">
+    <ion-list style="background: transparent;">
+      <!-- Opción 1: Principal -->
+      <ion-item (click)="navigate('/principal')" button style="--background: transparent;">
+        <ion-icon slot="start" name="home" style="color: #00a383;"></ion-icon>
+        <ion-label>Principal</ion-label>
+      </ion-item>
+      
+      <!-- Opción 2: Gastos -->
+      <ion-item (click)="navigate('/gastos')" button style="--background: transparent;">
+        <ion-icon slot="start" name="cash" style="color: #00a383;"></ion-icon>
+        <ion-label>Gastos</ion-label>
+      </ion-item>
+      
+      <!-- Opción 3: Informe -->
+      <ion-item (click)="navigate('/informe')" button style="--background: transparent;">
+        <ion-icon slot="start" name="document-text" style="color: #00a383;"></ion-icon>
+        <ion-label>Informe</ion-label>
+      </ion-item>
+      
+      <!-- Opción 4: Cerrar Sesión -->
+      <ion-item (click)="navigate('/logout')" button style="--background: transparent;">
+        <ion-icon slot="start" name="log-out" style="color: #ff3b30;"></ion-icon>
+        <ion-label style="color: #ff3b30;">Cerrar Sesión</ion-label>
+      </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-menu>

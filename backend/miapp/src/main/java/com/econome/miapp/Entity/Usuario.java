@@ -1,7 +1,11 @@
 package com.econome.miapp.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 @Entity
 @Table(name = "usuarios")
@@ -14,6 +18,10 @@ public class Usuario extends ABaseEntity {
 
     @Column(name = "password", nullable = false)
     private String password;
+
+    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+     @JsonIgnore
+    private Entrada entrada;
 
     // Getters y setters
 
@@ -39,5 +47,20 @@ public class Usuario extends ABaseEntity {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Entrada getEntrada() {
+        return entrada;
+    }
+
+    public void setEntrada(Entrada entrada) {
+        if (entrada == null) {
+            if (this.entrada != null) {
+                this.entrada.setUsuario(null);
+            }
+        } else {
+            entrada.setUsuario(this);
+        }
+        this.entrada = entrada;
     }
 }

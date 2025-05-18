@@ -15,5 +15,9 @@ export class RegisterService {
     return this.http.post(this.apiUrl, user);
   }
 
+  logout(){
+    
+  }
+
   
 }

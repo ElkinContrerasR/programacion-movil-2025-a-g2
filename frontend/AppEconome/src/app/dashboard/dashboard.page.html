@@ -1,13 +1,54 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>dashboard</ion-title>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">dashboard</ion-title>
+<app-menu></app-menu>
+<ion-content id="main-content" class="ion-padding dashboard-container">
+  <ion-header>
+    <ion-toolbar color="primary">
+      <ion-buttons slot="start">
+        <ion-menu-button></ion-menu-button>
+      </ion-buttons>
+      <ion-title>Principal</ion-title>
     </ion-toolbar>
   </ion-header>
+
+  <div class="dashboard-content">
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Información Financiera</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div *ngIf="entradaExistente; else formularioEntrada">
+          <ion-list>
+            <ion-item>
+              <ion-label>Entrada Inicial</ion-label>
+              <ion-note slot="end">{{ entradaExistente.monto | currency }}</ion-note>
+            </ion-item>
+            <ion-item>
+              <ion-label>Total Gastos</ion-label>
+              <ion-note slot="end">{{ totalGastos | currency }}</ion-note>
+            </ion-item>
+            <ion-item>
+              <ion-label>Saldo Actual</ion-label>
+              <ion-note slot="end" [color]="saldo >= 0 ? 'success' : 'danger'">
+                {{ saldo | currency }}
+              </ion-note>
+            </ion-item>
+          </ion-list>
+        </div>
+
+        <ng-template #formularioEntrada>
+          <h3>Ingresar Entrada Inicial</h3>
+          <ion-item>
+            <ion-label position="floating">Monto Inicial</ion-label>
+            <ion-input type="number" [(ngModel)]="entrada.monto" step="0.01" min="0"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="floating">Descripción (Opcional)</ion-label>
+            <ion-input type="text" [(ngModel)]="entrada.descripcion"></ion-input>
+          </ion-item>
+          <ion-button expand="block" (click)="agregarEntrada()" class="ion-margin-top">
+            Guardar Entrada Inicial
+          </ion-button>
+        </ng-template>
+      </ion-card-content>
+    </ion-card>
+  </div>
 </ion-content>
