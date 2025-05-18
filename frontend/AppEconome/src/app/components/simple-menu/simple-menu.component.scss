@@ -1,0 +1,31 @@
+ion-footer {
+  ion-toolbar {
+    --background: #00a383; /* Verde esmeralda */
+    --color: white;
+    min-height: 56px; /* Altura mínima para el toolbar en el footer */
+  }
+}
+
+ion-segment {
+  width: 100%;
+}
+
+ion-segment-button {
+  --color: white;
+  --color-checked: #82e0aa; /* Verde esmeralda clarito (cuando está activo) */
+  --background-checked: rgba(130, 224, 170, 0.3); /* Fondo verde esmeralda clarito (cuando está activo) */
+  --indicator-color: transparent; /* Oculta el indicador por defecto */
+
+  ion-icon {
+    margin-right: 5px;
+  }
+
+  ion-label {
+    font-size: 0.8em; /* Ajusta el tamaño de la fuente si es necesario */
+  }
+}
+
+.active-menu-item {
+  --color: #2ecc71; /* Verde esmeralda (texto/icono activo) */
+  --background: rgba(130, 224, 170, 0.3); /* Fondo verde esmeralda clarito (elemento activo) */
+}

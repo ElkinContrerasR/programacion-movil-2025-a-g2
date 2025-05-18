@@ -2,16 +2,17 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-import { MenuComponent } from '../components/menu/menu.component';
+
 import {IonicModule} from '@ionic/angular';
-import { HeaderComponent } from '../components/header/header.component';
+
 import { EntradaService } from '../service/entrada.service';
+import { SimpleMenuComponent } from '../components/simple-menu/simple-menu.component';
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.page.html',
   styleUrls: ['./dashboard.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule, MenuComponent, HeaderComponent]
+  imports: [IonicModule, CommonModule, FormsModule, SimpleMenuComponent]
 })
 export class DashboardPage implements OnInit {
     entrada = {
