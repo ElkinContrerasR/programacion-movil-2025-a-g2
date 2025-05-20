@@ -1,13 +1,61 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Registro de Gastos</ion-title>
+  </ion-toolbar>
+</ion-header>
+
 <ion-content id="main-content" class="ion-padding gastos-container">
   <div class="gastos-content">
     <ion-card>
       <ion-card-header>
-        <ion-card-title>Registro de Gastos</ion-card-title>
+        <ion-card-title>Registrar Nuevo Gasto</ion-card-title>
       </ion-card-header>
       <ion-card-content>
-        <p>Aquí podrás registrar tus gastos.</p>
+        <ion-item>
+          <ion-label position="floating">Monto</ion-label>
+          <ion-input type="number" [(ngModel)]="nuevoGasto.monto"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="floating">Descripción</ion-label>
+          <ion-input type="text" [(ngModel)]="nuevoGasto.descripcion"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label>Categoría</ion-label>
+          <ion-select [(ngModel)]="nuevoGasto.categoria">
+            <ion-select-option *ngFor="let categoria of categorias" [value]="categoria">{{ categoria }}</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-button expand="full" (click)="registrarGasto()" [disabled]="!nuevoGasto.monto || !nuevoGasto.categoria">
+          Registrar Gasto
+        </ion-button>
       </ion-card-content>
     </ion-card>
+
+    <ion-card *ngIf="gastosDelUsuario.length > 0">
+      <ion-card-header>
+        <ion-card-title>Mis Gastos</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-list>
+          <ion-item *ngFor="let gasto of gastosDelUsuario">
+            <ion-label>
+              <h2>{{ gasto.descripcion }}</h2>
+              <p>Monto: ${{ gasto.monto | number : '1.2-2' }}</p>
+              <p>Categoría: {{ gasto.categoria }}</p>
+            </ion-label>
+            <ion-button slot="end" (click)="confirmarGasto(gasto)" [disabled]="!gasto.status" color="primary">
+              <span *ngIf="gasto.status">Confirmar</span>
+              <span *ngIf="!gasto.status">Confirmado</span>
+            </ion-button>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+    <div *ngIf="gastosDelUsuario.length === 0" class="no-gastos-message">
+      <p>No hay gastos registrados para este usuario.</p> [cite: 34]
+    </div>
   </div>
 </ion-content>
 

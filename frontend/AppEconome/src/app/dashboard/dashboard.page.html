@@ -9,16 +9,16 @@
           <ion-list>
             <ion-item>
               <ion-label>Entrada Inicial</ion-label>
-              <ion-note slot="end">{{ entradaExistente.monto | currency }}</ion-note>
+              <ion-note slot="end">{{ entradaExistente.monto | currency }}</ion-note>  <!-- [cite: 80]-->
             </ion-item>
             <ion-item>
               <ion-label>Total Gastos</ion-label>
-              <ion-note slot="end">{{ totalGastos | currency }}</ion-note>
+              <ion-note slot="end">{{ totalGastos | currency }}</ion-note>  <!-- [cite: 81]-->
             </ion-item>
             <ion-item>
               <ion-label>Saldo Actual</ion-label>
               <ion-note slot="end" [color]="saldo >= 0 ? 'success' : 'danger'">
-                {{ saldo | currency }}
+                {{ saldo | currency }} <!--[cite: 82]-->
               </ion-note>
             </ion-item>
           </ion-list>
@@ -28,7 +28,7 @@
           <h3>Ingresar Entrada Inicial</h3>
           <ion-item>
             <ion-label position="floating">Monto Inicial</ion-label>
-            <ion-input type="number" [(ngModel)]="entrada.monto" step="0.01" min="0"></ion-input>
+            <ion-input type="number" [(ngModel)]="entrada.monto" step="0.01" min="0"></ion-input> <!-- [cite: 83]-->
           </ion-item>
           <ion-item>
             <ion-label position="floating">Descripción (Opcional)</ion-label>
@@ -36,7 +36,7 @@
           </ion-item>
           <ion-button expand="block" (click)="agregarEntrada()" class="ion-margin-top">
             Guardar Entrada Inicial
-          </ion-button>
+          </ion-button> <!--[cite: 84]-->
         </ng-template>
       </ion-card-content>
     </ion-card>
