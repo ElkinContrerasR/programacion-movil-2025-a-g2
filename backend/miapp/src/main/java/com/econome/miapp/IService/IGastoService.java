@@ -1,5 +1,6 @@
 package com.econome.miapp.IService;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import com.econome.miapp.Entity.Gasto;
@@ -17,5 +18,7 @@ public interface IGastoService extends IBaseService<Gasto>{
 
     //Actualizar el estado de un gasto
     Gasto updateStatus(Long id, Boolean status);
+
+    BigDecimal sumConfirmedGastosByUsuario(Usuario usuario);
     
 }

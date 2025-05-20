@@ -1,5 +1,6 @@
 package com.econome.miapp.Controller;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,6 +104,24 @@ public class GastoController extends ABaseController<Gasto, IGastoService>{
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND) // RuntimeException aquí a menudo es "no encontrado"
                     .body(new ApiResponseDto<>(e.getMessage(), null, false));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(new ApiResponseDto<>(e.getMessage(), null, false));
+        }
+    }
+
+    // NUEVO ENDPOINT PARA EL DASHBOARD
+    @GetMapping("/usuario/{usuarioId}/totalConfirmados")
+    public ResponseEntity<ApiResponseDto<BigDecimal>> getTotalConfirmedGastosByUsuario(@PathVariable Long usuarioId) {
+        try {
+            Usuario usuario = usuarioService.findById(usuarioId);
+            if (usuario == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new ApiResponseDto<>("Usuario no encontrado", null, false));
+            }
+            // Llama al servicio para sumar los gastos confirmados (status = false)
+            BigDecimal totalGastosConfirmados = gastoService.sumConfirmedGastosByUsuario(usuario);
+            return ResponseEntity.ok(new ApiResponseDto<>("Total de gastos confirmados obtenido", totalGastosConfirmados, true));
         } catch (Exception e) {
             return ResponseEntity.internalServerError()
                     .body(new ApiResponseDto<>(e.getMessage(), null, false));
