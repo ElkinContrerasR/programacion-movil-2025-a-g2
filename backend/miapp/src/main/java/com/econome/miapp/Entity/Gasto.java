@@ -1,24 +1,34 @@
 package com.econome.miapp.Entity;
 
-import jakarta.persistence.*;
 import java.math.BigDecimal;
 
-
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "entradas")
-public class Entrada extends ABaseEntity {
+@Table(name = "gastos")
+public class Gasto extends ABaseEntity {
+
+    public enum TipoCategoria{
+        OCIO, AHORRO, NECESARIOS
+    }
+
     @Column(name = "monto", nullable = false)
     private BigDecimal monto;
-    
+
     @Column(name = "descripcion", length = 100)
     private String descripcion;
-    
-    @OneToOne
-    @JoinColumn(name = "usuario_id", nullable = false, unique = true)
+
+    @Column(name = "categoría", nullable = false)
+    private TipoCategoria categoria;
+
+    @ManyToOne
+    @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
 
-    // Getters y setters
     public BigDecimal getMonto() {
         return monto;
     }
@@ -35,6 +45,14 @@ public class Entrada extends ABaseEntity {
         this.descripcion = descripcion;
     }
 
+    public TipoCategoria getCategoria() {
+        return categoria;
+    }
+
+    public void setCategoria(TipoCategoria categoria) {
+        this.categoria = categoria;
+    }
+
     public Usuario getUsuario() {
         return usuario;
     }
@@ -42,4 +60,8 @@ public class Entrada extends ABaseEntity {
     public void setUsuario(Usuario usuario) {
         this.usuario = usuario;
     }
+
+
+
+
 }
