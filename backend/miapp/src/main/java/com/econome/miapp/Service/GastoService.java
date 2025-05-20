@@ -1,6 +1,6 @@
 package com.econome.miapp.Service;
 
-import java.math.BigDecimal; // Importar BigDecimal
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -43,17 +43,27 @@ public class GastoService extends ABaseService<Gasto> implements IGastoService {
         Gasto existingGasto = gastoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Gasto no encontrado con ID: " + id));
 
+        // Validación de que el gasto pertenece al usuario
         if (!existingGasto.getUsuario().getId().equals(usuario.getId())) {
             throw new RuntimeException("No tienes permiso para actualizar este gasto.");
         }
 
-        gasto.setId(id);
-        gasto.setUsuario(usuario);
-        if (gasto.getStatus() == null) {
-            gasto.setStatus(existingGasto.getStatus());
-        }
+        // Guardar el monto anterior si el gasto estaba confirmado para poder recalcular en el frontend si es necesario
+        // Aunque el frontend recalculará el total de confirmados, es buena práctica saberlo aquí si la lógica fuera más compleja.
+        BigDecimal oldMonto = existingGasto.getMonto();
+        Boolean oldStatus = existingGasto.getStatus();
 
-        return gastoRepository.save(gasto);
+        // Actualizar campos
+        existingGasto.setMonto(gasto.getMonto());
+        existingGasto.setDescripcion(gasto.getDescripcion());
+        existingGasto.setCategoria(gasto.getCategoria());
+        // El status no se debería cambiar directamente por este update si es para edición de monto/desc/cat.
+        // Se mantiene la lógica de updateStatus separada para eso.
+        // Si quieres permitir cambiar el status en esta llamada, descomenta la siguiente línea:
+        // existingGasto.setStatus(gasto.getStatus() != null ? gasto.getStatus() : existingGasto.getStatus());
+        existingGasto.setUpdatedAt(LocalDateTime.now());
+
+        return gastoRepository.save(existingGasto);
     }
 
     @Override
@@ -63,6 +73,14 @@ public class GastoService extends ABaseService<Gasto> implements IGastoService {
 
         existingGasto.setStatus(status);
         existingGasto.setUpdatedAt(LocalDateTime.now());
+        // Si el status cambia a false (confirmado), establecemos deletedAt a null
+        // Si el status cambia a true (desconfirmado/pendiente), establecemos deletedAt a null
+        // Si queremos simular una eliminación lógica para gastos, aquí manejaríamos deletedAt
+        // Por ahora, asumimos que 'status: false' es confirmado y 'status: true' es pendiente
+        if (status) { // Si el status se vuelve true (pendiente), se "deselimina" lógicamente si estuviera "eliminado"
+             existingGasto.setDeletedAt(null);
+        }
+
         return gastoRepository.save(existingGasto);
     }
 
@@ -71,5 +89,27 @@ public class GastoService extends ABaseService<Gasto> implements IGastoService {
         // 'false' significa confirmado/aplicado
         BigDecimal total = gastoRepository.sumMontoByUsuarioAndStatus(usuario, false);
         return (total != null) ? total : BigDecimal.ZERO;
+    }
+
+    // NUEVO MÉTODO: Eliminar un gasto
+    @Override
+    public void deleteGasto(Long id, Usuario usuario) {
+        Gasto existingGasto = gastoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Gasto no encontrado con ID: " + id));
+
+        // Validación de que el gasto pertenece al usuario
+        if (!existingGasto.getUsuario().getId().equals(usuario.getId())) {
+            throw new RuntimeException("No tienes permiso para eliminar este gasto.");
+        }
+
+        // Eliminación física
+        gastoRepository.delete(existingGasto);
+    }
+
+    // NUEVO MÉTODO: Encontrar por ID y Usuario para validación
+    @Override
+    public Gasto findByIdAndUsuario(Long id, Usuario usuario) {
+        return gastoRepository.findByIdAndUsuario(id, usuario)
+                .orElseThrow(() -> new RuntimeException("Gasto no encontrado o no pertenece al usuario."));
     }
 }
