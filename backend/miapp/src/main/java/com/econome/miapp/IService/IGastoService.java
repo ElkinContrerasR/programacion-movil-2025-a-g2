@@ -15,5 +15,7 @@ public interface IGastoService extends IBaseService<Gasto>{
     // actualizar gasto relacionado a un usuario
     Gasto update(Long id, Gasto gasto, Usuario usuario);
 
+    //Actualizar el estado de un gasto
+    Gasto updateStatus(Long id, Boolean status);
     
 }

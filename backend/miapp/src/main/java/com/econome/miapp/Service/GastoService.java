@@ -1,5 +1,6 @@
 package com.econome.miapp.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +48,17 @@ public class GastoService extends ABaseService<Gasto> implements IGastoService{
         gasto.setId(id); // Aseguramos que el ID se mantenga
         gasto.setUsuario(usuario);
         return gastoRepository.save(gasto);
+    }
+
+    //Implementación para actualizar solo el status del gasto
+    @Override
+    public Gasto updateStatus(Long id, Boolean status) {
+        Gasto existingGasto = gastoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Gasto no encontrado con ID: " + id));
+
+        existingGasto.setStatus(status);
+        existingGasto.setUpdatedAt(LocalDateTime.now()); // Opcional: actualizar el timestamp
+        return gastoRepository.save(existingGasto);
     }
     
 

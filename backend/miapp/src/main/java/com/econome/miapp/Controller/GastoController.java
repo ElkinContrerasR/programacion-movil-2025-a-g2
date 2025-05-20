@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +20,7 @@ import com.econome.miapp.Entity.Usuario;
 import com.econome.miapp.IService.IGastoService;
 import com.econome.miapp.IService.IUsuarioService;
 
+@CrossOrigin(origins = "http://localhost:8100")
 @RestController
 @RequestMapping("/api/gastos")
 public class GastoController extends ABaseController<Gasto, IGastoService>{
@@ -78,6 +80,28 @@ public class GastoController extends ABaseController<Gasto, IGastoService>{
             return ResponseEntity.ok(new ApiResponseDto<>("Gasto actualizado", updatedGasto, true));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(new ApiResponseDto<>(e.getMessage(), null, false));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(new ApiResponseDto<>(e.getMessage(), null, false));
+        }
+    }
+
+    // **NUEVO ENDPOINT:** Para actualizar solo el status del gasto
+    @PutMapping("/{id}/status")
+    public ResponseEntity<ApiResponseDto<Gasto>> updateGastoStatus(@PathVariable Long id, @RequestBody Gasto statusUpdate) {
+        try {
+            // Asegúrate de que el body solo contiene el campo 'status'
+            // O si esperas un objeto Gasto completo, asegúrate de que solo se actualice el status.
+            if (statusUpdate.getStatus() == null) {
+                return ResponseEntity.badRequest()
+                        .body(new ApiResponseDto<>("Se requiere el campo 'status'", null, false));
+            }
+
+            Gasto updatedGasto = gastoService.updateStatus(id, statusUpdate.getStatus());
+            return ResponseEntity.ok(new ApiResponseDto<>("Estado del gasto actualizado", updatedGasto, true));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND) // RuntimeException aquí a menudo es "no encontrado"
                     .body(new ApiResponseDto<>(e.getMessage(), null, false));
         } catch (Exception e) {
             return ResponseEntity.internalServerError()

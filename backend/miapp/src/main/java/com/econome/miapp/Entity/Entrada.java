@@ -3,7 +3,7 @@ package com.econome.miapp.Entity;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+
 
 @Entity
 @Table(name = "entradas")
