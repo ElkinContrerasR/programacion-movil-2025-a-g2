@@ -59,6 +59,11 @@ export class GastosService {
     );
   }
 
+   // NUEVO MÉTODO PARA EL DASHBOARD
+  getTotalGastosConfirmadosPorUsuario(usuarioId: number): Observable<ApiResponse<number>> {
+    return this.http.get<ApiResponse<number>>(`${this.apiUrl}/usuario/${usuarioId}/totalConfirmados`);
+  }
+
   private handleError(error: any): Observable<never> {
     console.error('Error en GastosService:', error);
     return throwError(error);
