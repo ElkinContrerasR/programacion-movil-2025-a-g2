@@ -7,11 +7,25 @@ import { Subject, Observable } from 'rxjs';
 })
 export class SaldoActualizadorService {
   private gastoConfirmadoSource = new Subject<number>();
-  gastoConfirmado$ = this.gastoConfirmadoSource.asObservable();
+  gastoConfirmado$: Observable<number> = this.gastoConfirmadoSource.asObservable();
+
+  private gastoEliminadoSource = new Subject<number>(); // NUEVO: Para gastos eliminados
+  gastoEliminado$: Observable<number> = this.gastoEliminadoSource.asObservable();
+
+  private cambioEnGastoConfirmadoSource = new Subject<number>(); // NUEVO: Para cambios de monto en gastos confirmados
+  cambioEnGastoConfirmado$: Observable<number> = this.cambioEnGastoConfirmadoSource.asObservable();
 
   constructor() { }
 
-  notificarGastoConfirmado(monto: number) {
-    this.gastoConfirmadoSource.next(monto);
+  notificarGastoConfirmado(montoGasto: number) {
+    this.gastoConfirmadoSource.next(montoGasto);
+  }
+
+  notificarGastoEliminado(montoGasto: number) { // NUEVO MÉTODO
+    this.gastoEliminadoSource.next(montoGasto);
+  }
+
+  notificarCambioEnGastoConfirmado(diferenciaMonto: number) { // NUEVO MÉTODO
+    this.cambioEnGastoConfirmadoSource.next(diferenciaMonto);
   }
 }

@@ -40,16 +40,13 @@ export class GastosService {
   }
 
   obtenerGastosPorUsuario(usuarioId: number): Observable<ApiResponse<Gasto[]>> {
-    // Cuando cargues los gastos, recibirás el 'status' real desde el backend
     return this.http.get<ApiResponse<Gasto[]>>(`${this.apiUrl}/usuario/${usuarioId}`);
   }
 
-  // **NUEVO MÉTODO:** para actualizar el estado del gasto en el backend
   actualizarGastoStatus(gastoId: number, status: boolean): Observable<ApiResponse<Gasto>> {
-    const url = `${this.apiUrl}/${gastoId}/status`; // Nuevo endpoint
+    const url = `${this.apiUrl}/${gastoId}/status`;
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
 
-    // El backend espera un objeto JSON con el nuevo status: { "status": false }
     return this.http.put<ApiResponse<Gasto>>(url, { status: status }, { headers }).pipe(
       tap(
         (response) => console.log(`Gasto ${gastoId} status actualizado a ${status}:`, response),
@@ -59,9 +56,38 @@ export class GastosService {
     );
   }
 
-   // NUEVO MÉTODO PARA EL DASHBOARD
   getTotalGastosConfirmadosPorUsuario(usuarioId: number): Observable<ApiResponse<number>> {
     return this.http.get<ApiResponse<number>>(`${this.apiUrl}/usuario/${usuarioId}/totalConfirmados`);
+  }
+
+  // NUEVO MÉTODO: Editar un gasto existente
+  editarGasto(gastoId: number, usuarioId: number, gastoActualizado: Gasto): Observable<ApiResponse<Gasto>> {
+    const url = `${this.apiUrl}/${gastoId}/usuario/${usuarioId}`;
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+
+    // Excluimos el 'status' del objeto `gastoActualizado` si no queremos que este endpoint lo cambie.
+    // El backend ya lo tiene separado.
+    const { status, ...gastoDataToSend } = gastoActualizado;
+
+    return this.http.put<ApiResponse<Gasto>>(url, gastoDataToSend, { headers }).pipe(
+      tap(
+        (response) => console.log(`Gasto ${gastoId} actualizado:`, response),
+        (error) => console.error(`Error al actualizar el gasto ${gastoId}:`, error)
+      ),
+      catchError(this.handleError)
+    );
+  }
+
+  // NUEVO MÉTODO: Eliminar un gasto
+  eliminarGasto(gastoId: number, usuarioId: number): Observable<ApiResponse<string>> {
+    const url = `${this.apiUrl}/${gastoId}/usuario/${usuarioId}`;
+    return this.http.delete<ApiResponse<string>>(url).pipe(
+      tap(
+        (response) => console.log(`Gasto ${gastoId} eliminado:`, response),
+        (error) => console.error(`Error al eliminar el gasto ${gastoId}:`, error)
+      ),
+      catchError(this.handleError)
+    );
   }
 
   private handleError(error: any): Observable<never> {

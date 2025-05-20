@@ -2,11 +2,14 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, NavController } from '@ionic/angular';
+import { IonicModule, NavController, AlertController, ModalController } from '@ionic/angular'; // Importar AlertController y ModalController
 import { SimpleMenuComponent } from '../components/simple-menu/simple-menu.component';
 import { GastosService } from '../service/gastos.service';
 import { Router } from '@angular/router';
-import { SaldoActualizadorService } from '../service/saldo-actualizador.service';
+import { SaldoActualizadorService } from '../service/saldo-actualizador.service'; // Asegúrate de que este servicio existe
+import { GastoEditModalComponent } from './gasto-edit-modal/gasto-edit-modal.component';
+// Importa los íconos necesarios
+
 
 interface Gasto {
   id?: number;
@@ -27,7 +30,7 @@ interface ApiResponse<T> {
   templateUrl: './gastos.page.html',
   styleUrls: ['./gastos.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule, SimpleMenuComponent]
+  imports: [IonicModule, CommonModule, FormsModule, SimpleMenuComponent, GastoEditModalComponent]
 })
 export class GastosPage implements OnInit {
   nuevoGasto: Gasto = {
@@ -40,12 +43,22 @@ export class GastosPage implements OnInit {
   usuarioId: number | null = null;
   gastosDelUsuario: Gasto[] = [];
 
+  // Variables para la edición de gastos
+  isEditing = false;
+  gastoEnEdicion: Gasto | null = null;
+  montoOriginalGastoEnEdicion: number = 0; // Para guardar el monto antes de la edición
+  statusOriginalGastoEnEdicion: boolean = true; // Para guardar el status antes de la edición
+
   constructor(
     private gastosService: GastosService,
     private navController: NavController,
     private router: Router,
-    private saldoActualizadorService: SaldoActualizadorService
-  ) {}
+    private saldoActualizadorService: SaldoActualizadorService,
+    private alertController: AlertController, // Inyectar AlertController
+    private modalController: ModalController // Inyectar ModalController
+  ) {
+     
+  }
 
   ngOnInit() {
     this.cargarDatosUsuario();
@@ -73,23 +86,48 @@ export class GastosPage implements OnInit {
       return;
     }
 
+    if (this.nuevoGasto.monto <= 0) {
+      const alert = await this.alertController.create({
+        header: 'Monto Inválido',
+        message: 'El monto del gasto debe ser mayor que cero.',
+        buttons: ['OK']
+      });
+      await alert.present();
+      return;
+    }
+
     console.log('ID de usuario a usar para registrar gasto:', this.usuarioId);
     console.log('Datos del nuevo gasto a enviar:', this.nuevoGasto);
 
     try {
-      // Cuando se crea un gasto, su status se envía como true (pendiente)
       const response = await this.gastosService.crearGasto(this.usuarioId, this.nuevoGasto).toPromise();
       console.log('Respuesta del servicio crearGasto:', response);
-      console.log('Gasto registrado exitosamente');
-
-      this.nuevoGasto = { monto: 0, descripcion: '', categoria: '', status: true };
-      this.cargarGastosDelUsuario(); // Vuelve a cargar los gastos para ver el nuevo
+      if (response && response.status) {
+        console.log('Gasto registrado exitosamente');
+        this.nuevoGasto = { monto: 0, descripcion: '', categoria: '', status: true };
+        this.cargarGastosDelUsuario(); // Vuelve a cargar los gastos para ver el nuevo
+        const alert = await this.alertController.create({
+          header: 'Éxito',
+          message: 'Gasto registrado correctamente.',
+          buttons: ['OK']
+        });
+        await alert.present();
+      } else {
+        const alert = await this.alertController.create({
+          header: 'Error',
+          message: response?.message || 'Hubo un problema al registrar el gasto.',
+          buttons: ['OK']
+        });
+        await alert.present();
+      }
     } catch (error: any) {
       console.error('Error al registrar el gasto:', error);
-      console.log('Mensaje del error:', error.message);
-      if (error.error) {
-        console.log('Cuerpo del error:', error.error);
-      }
+      const alert = await this.alertController.create({
+        header: 'Error',
+        message: 'No se pudo registrar el gasto. Inténtalo de nuevo.',
+        buttons: ['OK']
+      });
+      await alert.present();
     }
   }
 
@@ -98,7 +136,6 @@ export class GastosPage implements OnInit {
       this.gastosService.obtenerGastosPorUsuario(this.usuarioId).subscribe(
         (response) => {
           if (response && response.data) {
-            // Los gastos ahora vienen con su 'status' real desde el backend
             this.gastosDelUsuario = response.data;
             console.log('Gastos del usuario cargados:', this.gastosDelUsuario);
           } else {
@@ -108,44 +145,194 @@ export class GastosPage implements OnInit {
         },
         (error) => {
           console.error('Error al obtener los gastos del usuario:', error);
+          this.mostrarAlerta('Error', 'No se pudieron cargar los gastos.');
         }
       );
     }
   }
 
-  // **MÉTODO DE CONFIRMACIÓN:** Ahora actualiza el backend
   async confirmarGasto(gasto: Gasto) {
     if (!gasto.id) {
       console.error('No se puede confirmar el gasto, ID de gasto no disponible.');
+      this.mostrarAlerta('Error', 'No se pudo confirmar el gasto: ID no disponible.');
       return;
     }
 
-    if (!gasto.status) { // Si status es false, ya está confirmado en el backend
+    if (!gasto.status) {
       console.log('Este gasto ya ha sido confirmado.');
+      this.mostrarAlerta('Información', 'Este gasto ya ha sido confirmado.');
+      return;
+    }
+
+    const alert = await this.alertController.create({
+      header: 'Confirmar Gasto',
+      message: `¿Estás seguro de que quieres confirmar el gasto de $${gasto.monto}?`,
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel',
+          cssClass: 'secondary'
+        },
+        {
+          text: 'Confirmar',
+          handler: async () => {
+            try {
+              const response = await this.gastosService.actualizarGastoStatus(gasto.id!, false).toPromise();
+              if (response && response.status) {
+                console.log('Gasto confirmado y estado actualizado en backend:', response);
+
+                // Notificar al Dashboard que el gasto ha sido confirmado
+                this.saldoActualizadorService.notificarGastoConfirmado(gasto.monto);
+
+                // Actualizar el estado del gasto en el array local
+                const index = this.gastosDelUsuario.findIndex(g => g.id === gasto.id);
+                if (index !== -1) {
+                  this.gastosDelUsuario[index].status = false;
+                }
+                this.mostrarAlerta('Éxito', 'Gasto confirmado correctamente.');
+              } else {
+                this.mostrarAlerta('Error', response?.message || 'Hubo un problema al confirmar el gasto.');
+              }
+            } catch (error: any) {
+              console.error('Error al confirmar el gasto:', error);
+              this.mostrarAlerta('Error', 'No se pudo confirmar el gasto. Inténtalo de nuevo.');
+            }
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  // NUEVO: Iniciar la edición de un gasto
+  async editarGasto(gasto: Gasto) {
+    if (!gasto.id) {
+      this.mostrarAlerta('Error', 'No se puede editar el gasto: ID no disponible.');
+      return;
+    }
+
+    this.gastoEnEdicion = { ...gasto }; // Clonar el objeto para no modificar el original directamente
+    this.montoOriginalGastoEnEdicion = gasto.monto; // Guardar el monto original
+    this.statusOriginalGastoEnEdicion = gasto.status; // Guardar el status original
+    this.isEditing = true;
+
+    // Abrir un modal o alert para la edición
+    const modal = await this.modalController.create({
+      component: GastoEditModalComponent, // Creamos un nuevo componente modal
+      componentProps: {
+        gasto: this.gastoEnEdicion,
+        categorias: this.categorias
+      }
+    });
+
+    modal.onDidDismiss().then((data) => {
+      if (data.data && data.data.editedGasto) {
+        this.guardarEdicionGasto(data.data.editedGasto);
+      }
+      this.isEditing = false;
+      this.gastoEnEdicion = null;
+    });
+
+    await modal.present();
+  }
+
+  // NUEVO: Guardar los cambios de un gasto editado
+  async guardarEdicionGasto(editedGasto: Gasto) {
+    if (!editedGasto.id || !this.usuarioId) {
+      this.mostrarAlerta('Error', 'No se puede guardar la edición: ID de gasto o usuario no disponible.');
+      return;
+    }
+
+    if (editedGasto.monto <= 0) {
+      this.mostrarAlerta('Monto Inválido', 'El monto del gasto debe ser mayor que cero.');
       return;
     }
 
     try {
-      // Llamar al servicio para actualizar el estado del gasto a "false" (confirmado/aplicado)
-      const response = await this.gastosService.actualizarGastoStatus(gasto.id, false).toPromise();
-      console.log('Gasto confirmado y estado actualizado en backend:', response);
+      const response = await this.gastosService.editarGasto(editedGasto.id, this.usuarioId, editedGasto).toPromise();
+      if (response && response.status) {
+        console.log('Gasto editado y actualizado en backend:', response.data);
 
-      // Notificar al Dashboard que el gasto ha sido confirmado
-      this.saldoActualizadorService.notificarGastoConfirmado(gasto.monto);
+        // Actualizar el gasto en la lista local
+        const index = this.gastosDelUsuario.findIndex(g => g.id === editedGasto.id);
+        if (index !== -1) {
+          // Mantener el status original, ya que la edición no lo cambia
+          response.data.status = this.statusOriginalGastoEnEdicion;
+          this.gastosDelUsuario[index] = response.data;
+        }
 
-      // Actualizar el estado del gasto en el array local para que el botón se deshabilite
-      // No es estrictamente necesario si recargaras los gastos, pero mejora la UX
-      const index = this.gastosDelUsuario.findIndex(g => g.id === gasto.id);
-      if (index !== -1) {
-        this.gastosDelUsuario[index].status = false; // Actualiza el status localmente
+        // Si el gasto estaba confirmado y el monto cambió, recalcular el saldo
+        if (!this.statusOriginalGastoEnEdicion && this.montoOriginalGastoEnEdicion !== editedGasto.monto) {
+          const diferencia = editedGasto.monto - this.montoOriginalGastoEnEdicion;
+          this.saldoActualizadorService.notificarCambioEnGastoConfirmado(diferencia);
+        }
+
+        this.mostrarAlerta('Éxito', 'Gasto editado correctamente.');
+      } else {
+        this.mostrarAlerta('Error', response?.message || 'Hubo un problema al editar el gasto.');
       }
-
     } catch (error: any) {
-      console.error('Error al confirmar el gasto:', error);
-      console.log('Mensaje del error:', error.message);
-      if (error.error) {
-        console.log('Cuerpo del error:', error.error);
-      }
+      console.error('Error al guardar la edición del gasto:', error);
+      this.mostrarAlerta('Error', 'No se pudo guardar la edición del gasto. Inténtalo de nuevo.');
+    } finally {
+      // Siempre recargar para asegurarse de que los datos estén frescos
+      this.cargarGastosDelUsuario();
     }
+  }
+
+  // NUEVO: Eliminar un gasto
+  async eliminarGasto(gasto: Gasto) {
+    if (!gasto.id || !this.usuarioId) {
+      this.mostrarAlerta('Error', 'No se puede eliminar el gasto: ID de gasto o usuario no disponible.');
+      return;
+    }
+
+    const alert = await this.alertController.create({
+      header: 'Eliminar Gasto',
+      message: `¿Estás seguro de que quieres eliminar el gasto de "$${gasto.monto}" - "${gasto.descripcion}"?`,
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel',
+          cssClass: 'secondary'
+        },
+        {
+          text: 'Eliminar',
+          handler: async () => {
+            try {
+              const response = await this.gastosService.eliminarGasto(gasto.id!, this.usuarioId!).toPromise();
+              if (response && response.status) {
+                console.log('Gasto eliminado en backend:', response.message);
+
+                // Si el gasto eliminado estaba confirmado, ajustar el saldo
+                if (!gasto.status) { // Si status es false, significa que estaba confirmado
+                  this.saldoActualizadorService.notificarGastoEliminado(gasto.monto);
+                }
+
+                // Eliminar el gasto de la lista local
+                this.gastosDelUsuario = this.gastosDelUsuario.filter(g => g.id !== gasto.id);
+                this.mostrarAlerta('Éxito', 'Gasto eliminado correctamente.');
+              } else {
+                this.mostrarAlerta('Error', response?.message || 'Hubo un problema al eliminar el gasto.');
+              }
+            } catch (error: any) {
+              console.error('Error al eliminar el gasto:', error);
+              this.mostrarAlerta('Error', 'No se pudo eliminar el gasto. Inténtalo de nuevo.');
+            }
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  // Método auxiliar para mostrar alertas
+  async mostrarAlerta(header: string, message: string) {
+    const alert = await this.alertController.create({
+      header: header,
+      message: message,
+      buttons: ['OK']
+    });
+    await alert.present();
   }
 }
