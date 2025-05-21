@@ -19,7 +19,7 @@ import com.econome.miapp.Entity.Usuario;
 import com.econome.miapp.IService.IUsuarioService;
 
 
-@CrossOrigin(origins = "http://localhost:8100")
+//@CrossOrigin(origins = "http://localhost:8100")
 @RestController
 @RequestMapping("/api/usuarios")
 public class UsuarioController extends ABaseController<Usuario, IUsuarioService> {

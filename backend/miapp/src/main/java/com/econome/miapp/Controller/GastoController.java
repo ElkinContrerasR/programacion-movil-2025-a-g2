@@ -22,7 +22,7 @@ import com.econome.miapp.Entity.Usuario;
 import com.econome.miapp.IService.IGastoService;
 import com.econome.miapp.IService.IUsuarioService;
 
-@CrossOrigin(origins = "http://localhost:8100")
+//@CrossOrigin(origins = "http://localhost:8100")
 @RestController
 @RequestMapping("/api/gastos")
 public class GastoController extends ABaseController<Gasto, IGastoService> {

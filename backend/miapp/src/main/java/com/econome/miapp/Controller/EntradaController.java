@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.econome.miapp.Entity.Entrada;
 import com.econome.miapp.IService.IEntradaService;
 
-@CrossOrigin(origins = "http://localhost:8100")
+//@CrossOrigin(origins = "http://localhost:8100")
 @RestController
 @RequestMapping("/api/entrada")
 public class EntradaController extends ABaseController<Entrada, IEntradaService >{
