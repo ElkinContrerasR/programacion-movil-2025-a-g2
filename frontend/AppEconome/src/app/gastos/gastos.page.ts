@@ -2,13 +2,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, NavController, AlertController, ModalController } from '@ionic/angular'; // Importar AlertController y ModalController
+import { IonicModule, NavController, AlertController, ModalController } from '@ionic/angular';
 import { SimpleMenuComponent } from '../components/simple-menu/simple-menu.component';
 import { GastosService } from '../service/gastos.service';
 import { Router } from '@angular/router';
-import { SaldoActualizadorService } from '../service/saldo-actualizador.service'; // Asegúrate de que este servicio existe
+import { SaldoActualizadorService } from '../service/saldo-actualizador.service';
 import { GastoEditModalComponent } from './gasto-edit-modal/gasto-edit-modal.component';
-// Importa los íconos necesarios
 
 
 interface Gasto {
@@ -54,10 +53,10 @@ export class GastosPage implements OnInit {
     private navController: NavController,
     private router: Router,
     private saldoActualizadorService: SaldoActualizadorService,
-    private alertController: AlertController, // Inyectar AlertController
-    private modalController: ModalController // Inyectar ModalController
+    private alertController: AlertController,
+    private modalController: ModalController
   ) {
-     
+
   }
 
   ngOnInit() {
@@ -106,6 +105,8 @@ export class GastosPage implements OnInit {
         console.log('Gasto registrado exitosamente');
         this.nuevoGasto = { monto: 0, descripcion: '', categoria: '', status: true };
         this.cargarGastosDelUsuario(); // Vuelve a cargar los gastos para ver el nuevo
+        // Notificar que los gastos han cambiado para el informe
+        this.saldoActualizadorService.notificarGastosActualizados(); // <--- AÑADIDO AQUÍ
         const alert = await this.alertController.create({
           header: 'Éxito',
           message: 'Gasto registrado correctamente.',
@@ -138,14 +139,18 @@ export class GastosPage implements OnInit {
           if (response && response.data) {
             this.gastosDelUsuario = response.data;
             console.log('Gastos del usuario cargados:', this.gastosDelUsuario);
+            // Si los gastos se recargan, es una buena oportunidad para notificar el informe
+            this.saldoActualizadorService.notificarGastosActualizados(); // <--- AÑADIDO AQUÍ
           } else {
             console.warn('La respuesta de la API no contiene la propiedad "data" esperada o está vacía.');
             this.gastosDelUsuario = [];
+            this.saldoActualizadorService.notificarGastosActualizados(); // También si no hay datos
           }
         },
         (error) => {
           console.error('Error al obtener los gastos del usuario:', error);
           this.mostrarAlerta('Error', 'No se pudieron cargar los gastos.');
+          this.saldoActualizadorService.notificarGastosActualizados(); // En caso de error, el informe también puede necesitar refrescarse
         }
       );
     }
@@ -190,6 +195,8 @@ export class GastosPage implements OnInit {
                   this.gastosDelUsuario[index].status = false;
                 }
                 this.mostrarAlerta('Éxito', 'Gasto confirmado correctamente.');
+                // Notificar que los gastos han cambiado para el informe
+                this.saldoActualizadorService.notificarGastosActualizados(); // <--- AÑADIDO AQUÍ
               } else {
                 this.mostrarAlerta('Error', response?.message || 'Hubo un problema al confirmar el gasto.');
               }
@@ -204,21 +211,19 @@ export class GastosPage implements OnInit {
     await alert.present();
   }
 
-  // NUEVO: Iniciar la edición de un gasto
   async editarGasto(gasto: Gasto) {
     if (!gasto.id) {
       this.mostrarAlerta('Error', 'No se puede editar el gasto: ID no disponible.');
       return;
     }
 
-    this.gastoEnEdicion = { ...gasto }; // Clonar el objeto para no modificar el original directamente
-    this.montoOriginalGastoEnEdicion = gasto.monto; // Guardar el monto original
-    this.statusOriginalGastoEnEdicion = gasto.status; // Guardar el status original
+    this.gastoEnEdicion = { ...gasto };
+    this.montoOriginalGastoEnEdicion = gasto.monto;
+    this.statusOriginalGastoEnEdicion = gasto.status;
     this.isEditing = true;
 
-    // Abrir un modal o alert para la edición
     const modal = await this.modalController.create({
-      component: GastoEditModalComponent, // Creamos un nuevo componente modal
+      component: GastoEditModalComponent,
       componentProps: {
         gasto: this.gastoEnEdicion,
         categorias: this.categorias
@@ -236,7 +241,6 @@ export class GastosPage implements OnInit {
     await modal.present();
   }
 
-  // NUEVO: Guardar los cambios de un gasto editado
   async guardarEdicionGasto(editedGasto: Gasto) {
     if (!editedGasto.id || !this.usuarioId) {
       this.mostrarAlerta('Error', 'No se puede guardar la edición: ID de gasto o usuario no disponible.');
@@ -253,21 +257,20 @@ export class GastosPage implements OnInit {
       if (response && response.status) {
         console.log('Gasto editado y actualizado en backend:', response.data);
 
-        // Actualizar el gasto en la lista local
         const index = this.gastosDelUsuario.findIndex(g => g.id === editedGasto.id);
         if (index !== -1) {
-          // Mantener el status original, ya que la edición no lo cambia
           response.data.status = this.statusOriginalGastoEnEdicion;
           this.gastosDelUsuario[index] = response.data;
         }
 
-        // Si el gasto estaba confirmado y el monto cambió, recalcular el saldo
         if (!this.statusOriginalGastoEnEdicion && this.montoOriginalGastoEnEdicion !== editedGasto.monto) {
           const diferencia = editedGasto.monto - this.montoOriginalGastoEnEdicion;
           this.saldoActualizadorService.notificarCambioEnGastoConfirmado(diferencia);
         }
 
         this.mostrarAlerta('Éxito', 'Gasto editado correctamente.');
+        // Notificar que los gastos han cambiado para el informe
+        this.saldoActualizadorService.notificarGastosActualizados(); // <--- AÑADIDO AQUÍ
       } else {
         this.mostrarAlerta('Error', response?.message || 'Hubo un problema al editar el gasto.');
       }
@@ -275,12 +278,10 @@ export class GastosPage implements OnInit {
       console.error('Error al guardar la edición del gasto:', error);
       this.mostrarAlerta('Error', 'No se pudo guardar la edición del gasto. Inténtalo de nuevo.');
     } finally {
-      // Siempre recargar para asegurarse de que los datos estén frescos
-      this.cargarGastosDelUsuario();
+      this.cargarGastosDelUsuario(); // Siempre recargar para asegurarse de que los datos estén frescos
     }
   }
 
-  // NUEVO: Eliminar un gasto
   async eliminarGasto(gasto: Gasto) {
     if (!gasto.id || !this.usuarioId) {
       this.mostrarAlerta('Error', 'No se puede eliminar el gasto: ID de gasto o usuario no disponible.');
@@ -304,14 +305,14 @@ export class GastosPage implements OnInit {
               if (response && response.status) {
                 console.log('Gasto eliminado en backend:', response.message);
 
-                // Si el gasto eliminado estaba confirmado, ajustar el saldo
-                if (!gasto.status) { // Si status es false, significa que estaba confirmado
+                if (!gasto.status) {
                   this.saldoActualizadorService.notificarGastoEliminado(gasto.monto);
                 }
 
-                // Eliminar el gasto de la lista local
                 this.gastosDelUsuario = this.gastosDelUsuario.filter(g => g.id !== gasto.id);
                 this.mostrarAlerta('Éxito', 'Gasto eliminado correctamente.');
+                // Notificar que los gastos han cambiado para el informe
+                this.saldoActualizadorService.notificarGastosActualizados(); // <--- AÑADIDO AQUÍ
               } else {
                 this.mostrarAlerta('Error', response?.message || 'Hubo un problema al eliminar el gasto.');
               }
@@ -326,7 +327,6 @@ export class GastosPage implements OnInit {
     await alert.present();
   }
 
-  // Método auxiliar para mostrar alertas
   async mostrarAlerta(header: string, message: string) {
     const alert = await this.alertController.create({
       header: header,

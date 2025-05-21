@@ -1,13 +1,59 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>informe</ion-title>
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Informe Financiero</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dashboard"></ion-back-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">informe</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="ion-padding">
+  <div class="informe-container">
+    <ion-card class="summary-card">
+      <ion-card-header>
+        <ion-card-title>Resumen General</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-item lines="none">
+          <ion-label>
+            <h2>Entrada Inicial:</h2>
+          </ion-label>
+          <ion-text color="primary">
+            <h2 class="ion-text-end">${{ entradaInicial | number : '1.2-2' }}</h2>
+          </ion-text>
+        </ion-item>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-card class="category-card">
+      <ion-card-header>
+        <ion-card-title>Gastos por Categoría (Confirmados)</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-list lines="inset">
+          <ion-item *ngFor="let categoria of categorias">
+            <ion-label>
+              <h3>{{ categoria }}</h3>
+              <p>Total gastado: ${{ gastosPorCategoria[categoria].total | number : '1.2-2' }}</p>
+            </ion-label>
+            <ion-text slot="end" [color]="gastosPorCategoria[categoria].porcentaje > 50 ? 'danger' : 'success'">
+              <strong>{{ gastosPorCategoria[categoria].porcentaje | number : '1.2-2' }}%</strong>
+            </ion-text>
+          </ion-item>
+          <ion-item *ngIf="entradaInicial === 0" class="no-entrada-warning">
+            <ion-label class="ion-text-wrap ion-text-center">
+              <ion-text color="warning">
+                <p>Ingresa una "Entrada Inicial" en el Dashboard para calcular los porcentajes.</p>
+              </ion-text>
+            </ion-label>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+
+  </div>
 </ion-content>
+
+<ion-footer>
+  <app-simple-menu></app-simple-menu>
+</ion-footer>
