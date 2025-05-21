@@ -22,7 +22,7 @@ interface ApiResponse<T> {
   providedIn: 'root'
 })
 export class GastosService {
-  private apiUrl = 'http://localhost:8080/api/gastos';
+  private apiUrl = 'http://192.168.1.6:8080/api/gastos';
 
   constructor(private http: HttpClient) { }
 

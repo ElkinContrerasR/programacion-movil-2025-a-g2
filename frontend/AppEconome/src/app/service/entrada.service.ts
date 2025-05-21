@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class EntradaService {
-  private apiUrl = 'http://localhost:8080/api/entrada';
+  private apiUrl = 'http://192.168.1.6:8080/api/entrada';
   private httpOptions = {
     headers: new HttpHeaders({
       'Content-Type': 'application/json'
