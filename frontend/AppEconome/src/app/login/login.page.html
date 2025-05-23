@@ -1,0 +1,49 @@
+<ion-content class="glass-background" fullscreen>
+  <app-header></app-header>
+  
+  <div class="glass-container">
+    <ion-card class="login-card">
+      <ion-card-header>
+        <ion-card-title>Iniciar Sesión</ion-card-title>
+      </ion-card-header>
+
+      <ion-card-content>
+        <form class="form">
+          <ion-item>
+            <ion-label position="floating">Correo Electrónico</ion-label>
+
+            <!-- Se agregó (ngModelChange)="clearLoginError()" para limpiar el error cuando el usuario modifica el email -->
+            <ion-input type="email" placeholder=" " name="email" [(ngModel)]="user.email"  (ngModelChange)="clearLoginError()" required></ion-input>
+            <ion-note color="danger" *ngIf="!isFieldValid('email') && formSubmitted">
+              {{ !user.email ? 'Este campo es requerido' : 'Formato de correo inválido' }}
+            </ion-note>
+          </ion-item>
+
+          <ion-item>
+            <ion-label position="floating">Contraseña</ion-label>
+            
+            <!-- Se agregó (ngModelChange)="clearLoginError()" para limpiar el error cuando el usuario modifica la contraseña -->
+            <ion-input type="password" placeholder=" " name="password" [(ngModel)]="user.password"  (ngModelChange)="clearLoginError()"required></ion-input>
+            <ion-note color="danger" *ngIf="!isFieldValid('password') && formSubmitted">
+              Este campo es requerido
+            </ion-note>
+          </ion-item>
+          
+            <!-- 🔴 Mensaje de credenciales inválidas -->
+            <ion-note color="danger" *ngIf="loginError && formSubmitted">
+              {{ loginError }}
+            </ion-note>
+          
+          
+
+          <app-button (click)="handleLoginClick()">Iniciar</app-button>
+        </form> 
+
+        <div class="register-link">
+          <p>¿No tienes cuenta?<a routerLink="/register">Regístrate aquí</a></p>
+        </div> 
+      </ion-card-content>
+    </ion-card>
+  </div> 
+</ion-content>
+ 

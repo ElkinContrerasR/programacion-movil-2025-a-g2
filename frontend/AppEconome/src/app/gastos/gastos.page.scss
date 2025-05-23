@@ -1,0 +1,124 @@
+ion-item {
+  --background: #ffffff;
+  --border-radius: 8px;
+  --box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  margin-bottom: 10px;
+
+  // Asegúrate de que el texto sea visible dentro del input
+  ion-input {
+    --color: #000000; // Color del texto del input, asegúrate de que sea oscuro
+    --placeholder-color: #999999; // Color del placeholder
+    --placeholder-opacity: 1; // Asegura que el placeholder no esté transparente
+  }
+
+  // Asegúrate de que la etiqueta flotante tenga un color visible
+  ion-label[position="floating"] {
+    color: #666666; // Color de la etiqueta flotante
+    transition: all 0.2s ease-in-out; // Añadir una transición suave
+  }
+
+  // Estilo para cuando el input está enfocado
+  &.item-has-focus {
+    ion-label[position="floating"] {
+      color: #00a383; // Color de la etiqueta cuando está enfocado
+      font-weight: bold;
+    }
+    ion-input {
+      border-bottom: 2px solid #00a383; // Borde inferior al enfocar
+    }
+  }
+  // Asegúrate de que el texto dentro de ion-select sea visible
+  ion-select {
+    --placeholder-color: #999999; // Color del placeholder
+    --placeholder-opacity: 1;
+
+    // Asegura el color del texto seleccionado
+    // Esto apunta a la entrada nativa dentro de ion-select que muestra el valor
+    .select-text {
+      color: #333333; // Un color oscuro para el texto seleccionado
+      font-weight: normal; // Puedes ajustar el peso de la fuente
+    }
+
+    // Estilo para la flecha del select (opcional)
+    .select-icon {
+      color: #00a383; // Color de la flecha
+    }
+  }
+
+  // Si usas un label con position="floating" en otros inputs,
+  // asegúrate de que no afecte negativamente a ion-select sin esta posición.
+  // Tu ion-select tiene un label sin position="floating", que es correcto.
+  ion-label {
+    color: #666666; // Color de la etiqueta general del item
+    // Si la etiqueta se superpone, podrías necesitar ajustar el padding o margin
+  }
+
+  // Estilo para cuando el ion-item que contiene el select tiene foco (opcional, pero mejora UX)
+  &.item-has-focus {
+    ion-label {
+      color: #00a383; // Color de la etiqueta cuando el select está enfocado
+      font-weight: bold;
+    }
+  }
+}
+
+// ... el resto de tus estilos ...
+
+ion-content {
+  --background: #e6f7f4; /* [cite: 31] */
+}
+
+ion-toolbar {
+  --background: #00a383; /* [cite: 31] */
+  --color: white; /* [cite: 31] */
+}
+
+.gastos-container {
+  display: flex; /* [cite: 31] */
+  flex-direction: column; /* [cite: 31] */
+  height: 100%; /* [cite: 31] */
+}
+
+.gastos-content {
+  padding: 16px; /* [cite: 31] */
+}
+
+ion-card {
+  margin-bottom: 20px; /* [cite: 31] */
+  border-radius: 12px; /* [cite: 31] */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* [cite: 31] */
+}
+
+ion-card-header {
+  background-color: rgba(0, 163, 131, 0.1); /* [cite: 31] */
+}
+
+ion-card-title {
+  color: #00a383; /* [cite: 31] */
+  font-size: 18px; /* [cite: 31] */
+  font-weight: 600; /* [cite: 31] */
+}
+
+ion-item {
+  --background: #ffffff;
+  --border-radius: 8px;
+  --box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  margin-bottom: 10px;
+}
+
+ion-label h2 {
+  font-size: 1.1em;
+  font-weight: 600;
+  color: #333;
+}
+
+ion-label p {
+  font-size: 0.9em;
+  color: #666;
+}
+
+.no-gastos-message {
+  text-align: center;
+  padding: 20px;
+  color: #777;
+}
