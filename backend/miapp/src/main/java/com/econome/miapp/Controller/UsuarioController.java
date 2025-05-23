@@ -7,7 +7,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,7 +19,7 @@ import com.econome.miapp.Entity.Usuario;
 import com.econome.miapp.IService.IUsuarioService;
 
 
-@CrossOrigin(origins = "http://localhost:8100")
+//@CrossOrigin(origins = "http://localhost:8100")
 @RestController
 @RequestMapping("/api/usuarios")
 public class UsuarioController extends ABaseController<Usuario, IUsuarioService> {

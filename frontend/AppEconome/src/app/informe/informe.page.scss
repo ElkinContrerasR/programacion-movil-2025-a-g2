@@ -1,0 +1,100 @@
+/* src/app/informe/informe.page.scss */
+
+ion-header {
+  ion-toolbar {
+    --background: #00a383;
+    --color: white;
+  }
+  ion-title {
+    color: white;
+  }
+  ion-back-button {
+    --color: white;
+  }
+}
+
+ion-content {
+  --background: #e6f7f4; /* Fondo suave */
+}
+
+.informe-container {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px; // Espacio entre las tarjetas
+}
+
+.summary-card, .category-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background: white;
+}
+
+.summary-card {
+  ion-card-header {
+    padding-bottom: 0;
+  }
+  ion-card-title {
+    color: #00a383;
+    font-weight: bold;
+    font-size: 1.3em;
+  }
+  ion-item {
+    --background: transparent;
+    --padding-start: 0;
+    --inner-padding-end: 0;
+    h2 {
+      font-size: 1.5em;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+    ion-text {
+      h2 {
+        font-size: 1.8em;
+        font-weight: bold;
+      }
+    }
+  }
+}
+
+.category-card {
+  ion-card-title {
+    color: #00a383;
+    font-weight: bold;
+    font-size: 1.2em;
+  }
+  ion-list {
+    background: transparent;
+    padding: 0;
+    margin: 0;
+  }
+  ion-item {
+    --background: transparent;
+    --padding-start: 0;
+    --inner-padding-end: 0;
+    h3 {
+      font-size: 1.1em;
+      font-weight: 600;
+      color: #555;
+    }
+    p {
+      font-size: 0.9em;
+      color: #777;
+    }
+    ion-text {
+      font-size: 1.1em;
+      font-weight: bold;
+    }
+  }
+}
+
+.no-entrada-warning {
+  --background: #fff3cd; // Color suave de advertencia
+  border-radius: 8px;
+  margin: 10px 0;
+  padding: 10px;
+  ion-text {
+    font-size: 0.9em;
+  }
+}

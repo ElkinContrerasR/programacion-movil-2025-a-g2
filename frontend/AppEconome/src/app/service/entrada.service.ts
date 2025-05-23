@@ -2,11 +2,29 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
+// --- Interfaces (pueden ser las mismas que en dashboard.page.ts) ---
+interface ApiResponse<T> {
+  status: boolean;
+  message: string;
+  data: T;
+}
+
+interface Entrada {
+  id?: number;
+  monto: number;
+  descripcion: string;
+  status: boolean;
+  usuario?: { id: number }; // si tu frontend necesita el objeto usuario anidado
+}
+// --- Fin de Interfaces ---
+
 @Injectable({
   providedIn: 'root'
 })
 export class EntradaService {
-  private apiUrl = 'http://localhost:8080/api/entrada';
+  // Asegúrate de que esta URL sea correcta. Si usas localhost en el desarrollo,
+  // recuerda cambiarla para producción si tu backend no está en el mismo servidor.
+  private apiUrl = 'http://192.168.1.6:8080/api/entrada';
   private httpOptions = {
     headers: new HttpHeaders({
       'Content-Type': 'application/json'
@@ -15,21 +33,25 @@ export class EntradaService {
 
   constructor(private http: HttpClient) { }
 
-  agregarEntrada(monto: number, descripcion: string, usuarioId: number): Observable<any> {
+  // Cambiado el tipo de retorno a Observable<ApiResponse<Entrada>>
+  agregarEntrada(monto: number, descripcion: string, usuarioId: number): Observable<ApiResponse<Entrada>> {
     const entradaParaEnviar = {
-      status: true, // Enviamos directamente el booleano
+      status: true,
       monto: monto,
       descripcion: descripcion,
       usuario: {
         id: usuarioId
       }
     };
-    return this.http.post(this.apiUrl, entradaParaEnviar, this.httpOptions);
+    // Asegúrate de que el backend devuelve un ApiResponse<Entrada> para este POST
+    return this.http.post<ApiResponse<Entrada>>(this.apiUrl, entradaParaEnviar, this.httpOptions);
   }
 
-  obtenerEntradaPorUsuario(usuarioId: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}/usuario/${usuarioId}`);
+  // Cambiado el tipo de retorno a Observable<ApiResponse<Entrada>>
+  obtenerEntradaPorUsuario(usuarioId: number): Observable<ApiResponse<Entrada>> {
+    // Aquí también esperamos que el backend devuelva un ApiResponse<Entrada>
+    return this.http.get<ApiResponse<Entrada>>(`${this.apiUrl}/usuario/${usuarioId}`);
   }
 
-
+  // Otros métodos si los tienes, asegúrate de que también manejen ApiResponse
 }

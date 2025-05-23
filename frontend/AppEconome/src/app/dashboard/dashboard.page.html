@@ -1,42 +1,39 @@
+
+
 <ion-content id="main-content" class="ion-padding dashboard-container">
   <div class="dashboard-content">
     <ion-card>
-      <ion-card-header>
-        <ion-card-title>Información Financiera</ion-card-title>
-      </ion-card-header>
       <ion-card-content>
+        <h2 class="ion-text-center ion-padding-bottom" *ngIf="entradaExistente">Resumen</h2>
+        <h2 class="ion-text-center ion-padding-bottom" *ngIf="!entradaExistente">Ingresar Entrada Inicial</h2>
+
         <div *ngIf="entradaExistente; else formularioEntrada">
-          <ion-list>
-            <ion-item>
-              <ion-label>Entrada Inicial</ion-label>
-              <ion-note slot="end">{{ entradaExistente.monto | currency }}</ion-note>  <!-- [cite: 80]-->
+          <ion-list lines="none"> <ion-item>
+              <ion-label>Entrada Inicial:</ion-label>
+              <ion-note slot="end">{{ entradaExistente.monto | currency }}</ion-note>
             </ion-item>
             <ion-item>
-              <ion-label>Total Gastos</ion-label>
-              <ion-note slot="end">{{ totalGastos | currency }}</ion-note>  <!-- [cite: 81]-->
+              <ion-label>Total Gastos:</ion-label>
+              <ion-note slot="end">{{ totalGastos | currency }}</ion-note>
             </ion-item>
             <ion-item>
-              <ion-label>Saldo Actual</ion-label>
+              <ion-label>Saldo Actual:</ion-label>
               <ion-note slot="end" [color]="saldo >= 0 ? 'success' : 'danger'">
-                {{ saldo | currency }} <!--[cite: 82]-->
+                {{ saldo | currency }}
               </ion-note>
             </ion-item>
           </ion-list>
         </div>
 
         <ng-template #formularioEntrada>
-          <h3>Ingresar Entrada Inicial</h3>
           <ion-item>
             <ion-label position="floating">Monto Inicial</ion-label>
-            <ion-input type="number" [(ngModel)]="entrada.monto" step="0.01" min="0"></ion-input> <!-- [cite: 83]-->
+            <ion-input type="number" [(ngModel)]="entrada.monto" step="0.01" min="0"></ion-input>
           </ion-item>
-          <ion-item>
-            <ion-label position="floating">Descripción (Opcional)</ion-label>
-            <ion-input type="text" [(ngModel)]="entrada.descripcion"></ion-input>
-          </ion-item>
+          
           <ion-button expand="block" (click)="agregarEntrada()" class="ion-margin-top">
-            Guardar Entrada Inicial
-          </ion-button> <!--[cite: 84]-->
+            Guardar
+          </ion-button>
         </ng-template>
       </ion-card-content>
     </ion-card>
