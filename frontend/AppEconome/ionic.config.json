@@ -1,7 +1,0 @@
-{
-  "name": "AppEconome",
-  "integrations": {
-    "capacitor": {}
-  },
-  "type": "angular-standalone"
-}
