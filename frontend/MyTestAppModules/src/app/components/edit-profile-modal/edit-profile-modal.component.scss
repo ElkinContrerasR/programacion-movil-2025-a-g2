@@ -1,0 +1,30 @@
+// src/app/components/edit-profile-modal/edit-profile-modal.component.scss
+ion-toolbar {
+  --background: #00a383;
+  --color: white;
+}
+
+ion-title {
+  color: white;
+  text-align: center;
+}
+
+ion-button {
+  --background: #00a383;
+  --background-activated: #007a63;
+  --background-hover: #009678;
+}
+
+ion-item {
+  --background: var(--ion-color-light);
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+ion-label {
+  color: #00a383;
+}
+
+ion-input {
+  --padding-start: 8px;
+}
